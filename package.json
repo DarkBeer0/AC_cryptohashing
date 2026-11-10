@@ -1,0 +1,29 @@
+{
+  "name": "record-hashing",
+  "version": "1.0.0",
+  "description": "Учебная задача: массовое вычисление многораундового SHA-256 для записей таблицы records и сохранение в record_hashes",
+  "type": "module",
+  "engines": {
+    "node": ">=20.6"
+  },
+  "scripts": {
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d --wait",
+    "db:psql": "docker compose exec postgres psql -U app -d records_db",
+    "seed": "tsx --env-file=.env scripts/seed.ts",
+    "status": "tsx --env-file=.env scripts/status.ts",
+    "start": "tsx --env-file=.env src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
