@@ -41,6 +41,8 @@ async function main(): Promise<void> {
     "SELECT max(record_id) AS max FROM record_hashes",
   );
   let lastId = rows[0]!.max ?? 0;
+  const start = performance.now();
+  let processed = 0;
   while (true) {
     const dbRequest = await pool.query<RecordRow>(
       "SELECT * FROM records WHERE id > $1 ORDER BY id LIMIT $2",
@@ -54,9 +56,15 @@ async function main(): Promise<void> {
     for (const row of dbRequest.rows) {
       map.set(row.id, hashRecord(row));
     }
+    const secondsHash = (performance.now() - start) / 1000;
     await pool.query(
       "INSERT INTO record_hashes (record_id, hash) SELECT * FROM unnest($1::bigint[], $2::text[]) ON CONFLICT (record_id) DO NOTHING",
       [[...map.keys()], [...map.values()]],
+    );
+    processed += map.size;
+    const seconds = (performance.now() - start) / 1000;
+    console.log(
+      `Прошло ${seconds.toFixed(2)} с, обработано ${processed}, скорость ${(processed / seconds).toFixed(0)} записей/с. Время на хеширование ${secondsHash.toFixed(2)} с`,
     );
   }
 }
